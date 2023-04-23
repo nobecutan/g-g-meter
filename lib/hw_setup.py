@@ -24,7 +24,7 @@
 
 from machine import Pin,SPI,I2C
 import gc
-from icm20948_i2c import ICM20948
+# from icm20948_i2c import ICM20948
 
 
 # *** Choose your color display driver here ***
@@ -72,5 +72,17 @@ def imu_int_irq(pin):
 imu_i2c = I2C(1, scl=Pin(27), sda=Pin(26))
 imu_int = Pin(7)
 imu_int.irq(trigger=Pin.IRQ_RISING, handler=imu_int_irq)
-imu = ICM20948(imu_i2c)
 
+
+# imu = ICM20948(imu_i2c)
+from lib.drivers.ICM20948.ICM20948 import ICM20948
+from lib.drivers.ICM20948.bus import I2C_Bus
+imu = ICM20948()
+for i in range(10):
+    try:
+        imu._setup(I2C_Bus(imu_i2c))
+    except Exception as e:
+        print('got exception: {} - trying again'.format(e))
+
+    if imu.AK09916_initialized:
+        break
